@@ -1,654 +1,462 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Claine — Portfolio</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet"/>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claine - Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- CSS VARIABLES & THEMES --- */
+        :root {
+            /* Morning Snow Theme (Default) */
+            --bg-color: #e6f7ff;
+            --text-color: #2c3e50;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --accent-color: #3498db;
+            --secondary-text: #57606f;
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --nav-bg: rgba(255, 255, 255, 0.8);
+            --snowflake-color: #fff;
+            --btn-text: #fff;
+        }
 
-    :root {
-      --gold:   #f5c542;
-      --teal:   #38d9c0;
-      --purple: #a855f7;
-      --red:    #ef4444;
-      --blue:   #3b82f6;
-      --gray:   #94a3b8;
-      --dark:   #04060f;
-      --glass:  rgba(255,255,255,0.04);
-    }
+        [data-theme="night"] {
+            /* Night Snow Theme */
+            --bg-color: #0c1425;
+            --text-color: #ecf0f1;
+            --card-bg: rgba(25, 35, 50, 0.9);
+            --accent-color: #00d2ff;
+            --secondary-text: #a4b0be;
+            --shadow: 0 10px 30px rgba(0,0,0,0.5);
+            --nav-bg: rgba(10, 15, 30, 0.8);
+            --snowflake-color: rgba(255, 255, 255, 0.7);
+            --btn-text: #0c1425;
+        }
 
-    html, body {
-      width: 100%; height: 100%;
-      overflow: hidden;
-      background: var(--dark);
-      font-family: 'Exo 2', sans-serif;
-      color: #e2e8f0;
-    }
+        /* --- BASIC RESET --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    /* ── STAR CANVAS ── */
-    #stars-canvas {
-      position: fixed; inset: 0;
-      z-index: 0;
-      pointer-events: none;
-    }
+        html {
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.5s ease;
+            overflow-x: hidden;
+        }
 
-    /* ── ORBIT RINGS (decorative) ── */
-    .orbit-ring {
-      position: fixed;
-      border-radius: 50%;
-      border: 1px solid rgba(255,255,255,0.05);
-      pointer-events: none;
-      z-index: 0;
-      transform: translate(-50%, -50%);
-    }
+        body {
+            min-height: 100vh;
+        }
 
-    /* ── FLOATING PLANETS ── */
-    .planet {
-      position: fixed;
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 1;
-      filter: blur(0.5px);
-    }
+        /* --- SNOW ANIMATION --- */
+        #snow-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
 
-    /* ── NAV ── */
-    nav {
-      position: fixed;
-      top: 50%;
-      right: 2rem;
-      transform: translateY(-50%);
-      z-index: 100;
-      display: flex;
-      flex-direction: column;
-      gap: 1.2rem;
-      align-items: center;
-    }
-    nav button {
-      width: 12px; height: 12px;
-      border-radius: 50%;
-      border: 2px solid rgba(255,255,255,0.3);
-      background: transparent;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-    }
-    nav button::after { display: none; }
-    nav button:hover,
-    nav button.active {
-      background: var(--gold);
-      border-color: var(--gold);
-      box-shadow: 0 0 12px var(--gold);
-    }
+        .snowflake {
+            position: absolute;
+            background-color: var(--snowflake-color);
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: fall linear infinite;
+            transition: background-color 0.5s ease;
+        }
 
-    /* ── SECTIONS ── */
-    section {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.45s cubic-bezier(0.25,0.46,0.45,0.94),
-                  transform 0.45s cubic-bezier(0.25,0.46,0.45,0.94);
-      transform: translateY(18px);
-      padding: 2rem;
-      will-change: opacity, transform;
-    }
-    section.active {
-      opacity: 1;
-      pointer-events: all;
-      transform: translateY(0);
-    }
-    section.exit-up {
-      opacity: 0;
-      transform: translateY(-18px);
-    }
+        @keyframes fall {
+            0% { transform: translateY(-10vh) translateX(0); }
+            100% { transform: translateY(110vh) translateX(50px); }
+        }
 
-    /* ── INNER CARD ── */
-    .card {
-      background: rgba(4,6,15,0.7);
-      backdrop-filter: blur(18px);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 24px;
-      padding: clamp(2rem, 5vw, 4rem);
-      max-width: 780px;
-      width: 100%;
-      box-shadow: 0 8px 60px rgba(0,0,0,0.6),
-                  inset 0 1px 0 rgba(255,255,255,0.06);
-      position: relative;
-      overflow: hidden;
-      will-change: transform;
-    }
-    .card::before {
-      content: '';
-      position: absolute;
-      top: -60px; left: -60px;
-      width: 220px; height: 220px;
-      border-radius: 50%;
-      filter: blur(60px);
-      opacity: 0.18;
-      pointer-events: none;
-    }
+        /* --- LAYOUT & SECTIONS --- */
+        .main-container {
+            position: relative;
+            z-index: 1;
+        }
 
-    /* ── SECTION 1 — HERO ── */
-    #s1 .card::before { background: var(--gold); }
-    .hero-sun {
-      width: 90px; height: 90px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, #fffbe6, #f5c542 50%, #d97706);
-      box-shadow: 0 0 40px #f5c54288, 0 0 90px #f5c54244, 0 0 0 12px rgba(245,197,66,0.08);
-      margin: 0 auto 1.8rem;
-      animation: pulse-sun 3s ease-in-out infinite;
-    }
-    @keyframes pulse-sun {
-      0%,100% { box-shadow: 0 0 40px #f5c54288,0 0 90px #f5c54244,0 0 0 12px rgba(245,197,66,0.08); }
-      50%      { box-shadow: 0 0 55px #f5c542bb,0 0 120px #f5c54266,0 0 0 20px rgba(245,197,66,0.12); }
-    }
-    .hero-name {
-      font-family: 'Orbitron', monospace;
-      font-size: clamp(2.4rem, 7vw, 4.2rem);
-      font-weight: 900;
-      letter-spacing: 0.06em;
-      background: linear-gradient(135deg, #f5c542, #fff7cc, #f5c542);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      text-align: center;
-      margin-bottom: 0.5rem;
-    }
-    .hero-sub {
-      font-family: 'Exo 2', sans-serif;
-      font-size: clamp(0.85rem, 2vw, 1.05rem);
-      font-weight: 300;
-      letter-spacing: 0.3em;
-      text-transform: uppercase;
-      color: rgba(245,197,66,0.6);
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-    .hero-intro {
-      text-align: center;
-      font-size: 1.05rem;
-      line-height: 1.9;
-      color: rgba(226,232,240,0.75);
-    }
-    .scroll-hint {
-      margin-top: 2.5rem;
-      text-align: center;
-      font-size: 0.72rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: rgba(245,197,66,0.35);
-      animation: blink 2.5s ease-in-out infinite;
-    }
-    @keyframes blink {
-      0%,100% { opacity: 0.35; }
-      50%      { opacity: 0.9; }
-    }
+        section {
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+            position: relative;
+        }
 
-    /* ── SECTION 2 — ABOUT ── */
-    #s2 .card::before { background: var(--teal); }
-    .section-label {
-      font-family: 'Orbitron', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.35em;
-      text-transform: uppercase;
-      color: var(--teal);
-      margin-bottom: 0.6rem;
-    }
-    .section-title {
-      font-family: 'Orbitron', monospace;
-      font-size: clamp(1.6rem, 4vw, 2.4rem);
-      font-weight: 700;
-      margin-bottom: 2rem;
-      color: #f1f5f9;
-    }
-    .about-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 1.2rem;
-    }
-    .about-card {
-      background: rgba(56,217,192,0.06);
-      border: 1px solid rgba(56,217,192,0.15);
-      border-radius: 14px;
-      padding: 1.4rem 1.6rem;
-      transition: transform 0.3s, box-shadow 0.3s;
-    }
-    .about-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 0 24px rgba(56,217,192,0.15);
-    }
-    .about-card h3 {
-      font-family: 'Orbitron', monospace;
-      font-size: 0.85rem;
-      color: var(--teal);
-      margin-bottom: 0.6rem;
-      letter-spacing: 0.1em;
-    }
-    .about-card p { font-size: 0.95rem; color: rgba(226,232,240,0.7); line-height: 1.7; }
+        /* --- TYPOGRAPHY & UI ELEMENTS --- */
+        h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--accent-color);
+            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
 
-    /* ── PROJECT SECTIONS (3,4,5) ── */
-    .proj-planet {
-      width: 64px; height: 64px;
-      border-radius: 50%;
-      margin: 0 auto 1.5rem;
-      position: relative;
-    }
-    #s3 .card::before { background: var(--purple); }
-    #s3 .proj-planet {
-      background: radial-gradient(circle at 35% 30%, #c084fc, #7c3aed 60%, #4c1d95);
-      box-shadow: 0 0 30px rgba(168,85,247,0.5), 0 0 60px rgba(168,85,247,0.2);
-      animation: float 4s ease-in-out infinite;
-    }
-    #s4 .card::before { background: var(--red); }
-    #s4 .proj-planet {
-      background: radial-gradient(circle at 35% 30%, #fca5a5, #dc2626 60%, #7f1d1d);
-      box-shadow: 0 0 30px rgba(239,68,68,0.5), 0 0 60px rgba(239,68,68,0.2);
-      animation: float 4.5s ease-in-out infinite;
-    }
-    #s5 .card::before { background: var(--gray); }
-    #s5 .proj-planet {
-      background: radial-gradient(circle at 35% 30%, #cbd5e1, #475569 60%, #1e293b);
-      box-shadow: 0 0 30px rgba(148,163,184,0.4), 0 0 60px rgba(148,163,184,0.15);
-      animation: float 5s ease-in-out infinite;
-    }
-    @keyframes float {
-      0%,100% { transform: translateY(0); }
-      50%      { transform: translateY(-10px); }
-    }
+        .tagline {
+            font-size: 1.2rem;
+            font-weight: 300;
+            color: var(--secondary-text);
+            margin-bottom: 30px;
+        }
 
-    .proj-title {
-      font-family: 'Orbitron', monospace;
-      font-size: clamp(1.8rem, 4vw, 2.6rem);
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: 0.4rem;
-    }
-    #s3 .proj-title { color: #c084fc; }
-    #s4 .proj-title { color: #f87171; }
-    #s5 .proj-title { color: #94a3b8; }
+        h2.section-title {
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            text-align: center;
+        }
 
-    .proj-desc {
-      text-align: center;
-      color: rgba(226,232,240,0.6);
-      font-size: 1rem;
-      line-height: 1.8;
-      margin-bottom: 2rem;
-      max-width: 480px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .proj-img-wrap {
-      width: 100%;
-      max-width: 420px;
-      margin: 0 auto 2rem;
-      border-radius: 14px;
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.07);
-      box-shadow: 0 4px 30px rgba(0,0,0,0.5);
-    }
-    .proj-img-wrap img {
-      width: 100%; height: auto;
-      display: block;
-      transition: transform 0.5s ease;
-    }
-    .proj-img-wrap:hover img { transform: scale(1.04); }
+        .card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            max-width: 600px;
+            width: 100%;
+            transition: transform 0.3s ease, background-color 0.5s ease;
+        }
 
-    .btn-wrap { text-align: center; }
-    .btn {
-      display: inline-block;
-      font-family: 'Orbitron', monospace;
-      font-size: 0.8rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      text-decoration: none;
-      padding: 0.75rem 2rem;
-      border-radius: 50px;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-    #s3 .btn { background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.5); color: #c084fc; }
-    #s3 .btn:hover { background: rgba(168,85,247,0.3); box-shadow: 0 0 20px rgba(168,85,247,0.4); }
-    #s4 .btn { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.5); color: #f87171; }
-    #s4 .btn:hover { background: rgba(239,68,68,0.3); box-shadow: 0 0 20px rgba(239,68,68,0.4); }
-    #s5 .btn { background: rgba(148,163,184,0.1); border: 1px solid rgba(148,163,184,0.4); color: #94a3b8; }
-    #s5 .btn:hover { background: rgba(148,163,184,0.2); box-shadow: 0 0 20px rgba(148,163,184,0.3); }
+        .card:hover {
+            transform: translateY(-5px);
+        }
 
-    /* ── SECTION 6 — FOOTER ── */
-    #s6 .card::before { background: var(--blue); }
-    .footer-orbit {
-      width: 70px; height: 70px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 30%, #93c5fd, #2563eb 60%, #1e3a8a);
-      box-shadow: 0 0 30px rgba(59,130,246,0.5);
-      margin: 0 auto 1.8rem;
-      animation: float 6s ease-in-out infinite;
-    }
-    .footer-title {
-      font-family: 'Orbitron', monospace;
-      font-size: clamp(1.5rem,4vw,2.2rem);
-      font-weight: 700;
-      text-align: center;
-      color: #93c5fd;
-      margin-bottom: 1rem;
-    }
-    .footer-text {
-      text-align: center;
-      color: rgba(226,232,240,0.55);
-      font-size: 0.95rem;
-      line-height: 1.9;
-      max-width: 420px;
-      margin: 0 auto 2rem;
-    }
-    .progress-bar {
-      max-width: 300px;
-      margin: 0 auto;
-      height: 4px;
-      background: rgba(255,255,255,0.08);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      border-radius: 2px;
-      background: linear-gradient(90deg, #3b82f6, #38d9c0);
-      animation: progress 3s ease-in-out infinite alternate;
-    }
-    @keyframes progress {
-      0%  { width: 30%; }
-      100%{ width: 85%; }
-    }
-    .progress-label {
-      text-align: center;
-      font-size: 0.7rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: rgba(59,130,246,0.5);
-      margin-top: 0.6rem;
-    }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            padding: 12px 30px;
+            background-color: var(--accent-color);
+            color: var(--btn-text);
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: opacity 0.3s ease, transform 0.2s ease;
+        }
 
-    /* ── SCROLL ARROWS ── */
-    .scroll-btns {
-      position: fixed;
-      bottom: 2rem;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 100;
-      display: flex;
-      gap: 1rem;
-    }
-    .scroll-btns button {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 50%;
-      width: 40px; height: 40px;
-      cursor: pointer;
-      color: rgba(255,255,255,0.4);
-      font-size: 1rem;
-      transition: all 0.3s;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .scroll-btns button:hover {
-      border-color: var(--gold);
-      color: var(--gold);
-      box-shadow: 0 0 12px rgba(245,197,66,0.3);
-    }
+        .btn:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+        }
 
+        /* --- SECTION SPECIFICS --- */
+        
+        /* Section 1: Intro */
+        #intro .intro-text p {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+            text-align: center;
+        }
 
+        /* Section 2: About */
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 800px;
+            width: 100%;
+        }
+        .about-card h3 { 
+            margin-bottom: 10px; 
+            color: var(--accent-color); 
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-    /* ── RESPONSIVE ── */
-    @media (max-width: 600px) {
-      nav { right: 0.8rem; }
-      .card { padding: 1.6rem 1.2rem; }
-      .scroll-btns button { width: 34px; height: 34px; }
-    }
-  </style>
+        /* Sections 3, 4, 5: Projects */
+        .project-display {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            max-width: 900px;
+        }
+        .project-image-container {
+            width: 300px;
+            height: 225px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        .project-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .project-info { flex: 1; }
+        .project-info p { color: var(--secondary-text); margin-bottom: 10px;}
+
+        /* Section 6: Footer */
+        #improving {
+            height: 60vh;
+        }
+        footer {
+            text-align: center;
+            color: var(--secondary-text);
+        }
+
+        /* --- THEME TOGGLE BUTTON --- */
+        .theme-switch-wrapper {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            z-index: 100;
+            background: var(--nav-bg);
+            padding: 10px;
+            border-radius: 50px;
+            backdrop-filter: blur(5px);
+            box-shadow: var(--shadow);
+        }
+        .theme-switch-wrapper em { 
+            margin: 0 10px; 
+            font-style: normal; 
+            font-size: 1rem; 
+            color: var(--secondary-text);
+        }
+        .theme-switch {
+            display: inline-block;
+            height: 24px;
+            position: relative;
+            width: 50px;
+        }
+        .theme-switch input { display:none; }
+        .slider {
+            background-color: #ccc;
+            bottom: 0;
+            cursor: pointer;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            background-color: #fff;
+            bottom: 2px;
+            content: "";
+            height: 20px;
+            left: 2px;
+            position: absolute;
+            transition: .4s;
+            width: 20px;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #2c3e50; }
+        input:checked + .slider:before { transform: translateX(26px); background-color: #00d2ff;}
+
+        /* --- SCROLL-TRIGGERED ANIMATIONS --- */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .section-active .animate-on-scroll {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- RESPONSIVE DESIGN --- */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            h2.section-title { font-size: 1.8rem; }
+            section { padding: 20px; }
+            .about-grid { grid-template-columns: 1fr; }
+            .project-display { flex-direction: column; text-align: center; gap: 20px;}
+            .project-image-container { width: 100%; height: 200px; }
+            #intro .intro-text p { font-size: 1.1rem; }
+        }
+    </style>
 </head>
 <body>
 
-<canvas id="stars-canvas"></canvas>
+    <div id="snow-container"></div>
 
-<!-- Orbit Rings -->
-<div class="orbit-ring" style="width:320px;height:320px;top:50%;left:50%"></div>
-<div class="orbit-ring" style="width:560px;height:560px;top:50%;left:50%"></div>
-<div class="orbit-ring" style="width:800px;height:800px;top:50%;left:50%"></div>
-
-<!-- Floating ambient planets -->
-<div class="planet" style="width:14px;height:14px;background:#f5c542;top:15%;left:8%;opacity:0.5;animation:float 7s ease-in-out infinite;"></div>
-<div class="planet" style="width:9px;height:9px;background:#38d9c0;top:70%;left:5%;opacity:0.4;animation:float 9s ease-in-out infinite 1s;"></div>
-<div class="planet" style="width:18px;height:18px;background:#a855f7;top:25%;right:10%;opacity:0.4;animation:float 8s ease-in-out infinite 2s;"></div>
-<div class="planet" style="width:7px;height:7px;background:#ef4444;top:80%;right:12%;opacity:0.5;animation:float 6s ease-in-out infinite 0.5s;"></div>
-<div class="planet" style="width:11px;height:11px;background:#3b82f6;top:55%;left:92%;opacity:0.4;animation:float 10s ease-in-out infinite 3s;"></div>
-
-<!-- Navigation -->
-<nav id="nav">
-  <button data-label="Hello" onclick="goTo(0)"></button>
-  <button data-label="About Me" onclick="goTo(1)"></button>
-  <button data-label="GDevelop" onclick="goTo(2)"></button>
-  <button data-label="YouTube" onclick="goTo(3)"></button>
-  <button data-label="GitHub" onclick="goTo(4)"></button>
-  <button data-label="Still Improving" onclick="goTo(5)"></button>
-</nav>
-
-
-
-<!-- Scroll Arrows -->
-<div class="scroll-btns">
-  <button onclick="goTo(current-1)" title="Previous">↑</button>
-  <button onclick="goTo(current+1)" title="Next">↓</button>
-</div>
-
-<!-- ══ SECTION 1 — HELLO ══ -->
-<section id="s1">
-  <div class="card">
-    <div class="hero-sun"></div>
-    <h1 class="hero-name">CLAINE</h1>
-    <p class="hero-sub">— Personal Portfolio —</p>
-    <p class="hero-intro">
-      Hi! My name is Claine.<br>
-      I'm a student learning web development,<br>
-      and this is my corner of the universe.
-    </p>
-    <p class="scroll-hint">↓ Scroll or navigate to explore ↓</p>
-  </div>
-</section>
-
-<!-- ══ SECTION 2 — ABOUT ══ -->
-<section id="s2">
-  <div class="card">
-    <p class="section-label">// Orbit 02</p>
-    <h2 class="section-title">About Me 😉</h2>
-    <div class="about-grid">
-      <div class="about-card">
-        <h3>⭐ Hobby</h3>
-        <p>Gaming, Reading &amp; Music — my three favorite galaxies to explore.</p>
-      </div>
-      <div class="about-card">
-        <h3>⭐ Future Plans</h3>
-        <p>Graduate, land a job, and support my family — one orbit at a time.</p>
-      </div>
-      <div class="about-card">
-        <h3>⭐ Currently</h3>
-        <p>Learning web development and building projects to grow my skills every day.</p>
-      </div>
+    <div class="theme-switch-wrapper">
+        <em><i class="fa-solid fa-sun" style="color: #f1c40f;"></i></em>
+        <label class="theme-switch" for="checkbox">
+            <input type="checkbox" id="checkbox" />
+            <div class="slider round"></div>
+        </label>
+        <em><i class="fa-solid fa-moon"></i></em>
     </div>
-  </div>
-</section>
 
-<!-- ══ SECTION 3 — GDEVELOP ══ -->
-<section id="s3">
-  <div class="card">
-    <div class="proj-planet"></div>
-    <h2 class="proj-title">GDevelop</h2>
-    <p class="proj-desc">
-      Check out my game! Built with GDevelop —<br>
-      a no-code game engine for everyone.
-    </p>
-    <div class="proj-img-wrap">
-      <img src="images/pic02.jpg" alt="GDevelop Game"/>
+    <div class="main-container">
+
+        <section id="intro">
+            <div class="animate-on-scroll card" style="text-align: center;">
+                <h1>Claine</h1>
+                <p class="tagline">Hi, welcome to my website</p>
+                <div class="intro-text">
+                    <p>Hi! My name is Claine.</p>
+                    <p>I am a student learning web development.</p>
+                    <p>This website is my personal portfolio.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="about">
+            <h2 class="section-title animate-on-scroll">ABOUT ME <i class="fa-regular fa-face-smile-wink"></i></h2>
+            <div class="about-grid">
+                <div class="card about-card animate-on-scroll" style="transition-delay: 0.1s;">
+                    <h3><i class="fa-solid fa-gamepad"></i> HOBBIES</h3>
+                    <p>Gaming, Reading, Music</p>
+                </div>
+                <div class="card about-card animate-on-scroll" style="transition-delay: 0.2s;">
+                    <h3><i class="fa-solid fa-rocket"></i> Future Plans</h3>
+                    <p>Graduate, and find a Job to support my family.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="gdevelop">
+            <h2 class="section-title animate-on-scroll">My Projects</h2>
+            <div class="card project-display animate-on-scroll">
+                <div class="project-image-container">
+                    <img src="images/pic02.jpg" alt="GDevelop Game Screenshot">
+                </div>
+                <div class="project-info">
+                    <h3 class="project-title">GDevelop</h3>
+                    <p>Check out my game!</p>
+                    <a href="https://gd.games/games/6d9ac45b-3c74-42bd-abdd-4529e874b4f0" target="_blank" class="btn">
+                        <i class="fa-solid fa-play"></i> View Project
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="youtube">
+            <div class="card project-display animate-on-scroll">
+                <div class="project-image-container">
+                    <img src="images/pic03.jpg" alt="YouTube Channel Art">
+                </div>
+                <div class="project-info">
+                    <h3 class="project-title">YouTube</h3>
+                    <p>Watch my simple gaming content!</p>
+                    <a href="https://youtube.com/@hotdogpandesal-gaming?si=mxgZnGF4sPheFv-Z" target="_blank" class="btn">
+                        <i class="fa-brands fa-youtube"></i> Watch Content
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="github">
+            <div class="card project-display animate-on-scroll">
+                <div class="project-image-container">
+                    <img src="images/pic04.jpg" alt="GitHub Logo">
+                </div>
+                <div class="project-info">
+                    <h3 class="project-title">GitHub</h3>
+                    <p>View my code and projects!</p>
+                    <a href="https://github.com/Clainesemania" target="_blank" class="btn">
+                        <i class="fa-brands fa-github"></i> View Code
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="improving">
+            <footer class="animate-on-scroll">
+                <p>____________________________</p>
+                <p style="margin-top: 20px; font-size: 1.1rem; font-weight: 300;">
+                    <i class="fa-solid fa-seedling" style="color: var(--accent-color);"></i> Still Improving
+                </p>
+            </footer>
+        </section>
+
     </div>
-    <div class="btn-wrap">
-      <a class="btn" href="https://gd.games/games/6d9ac45b-3c74-42bd-abdd-4529e874b4f0" target="_blank">Launch Game →</a>
-    </div>
-  </div>
-</section>
 
-<!-- ══ SECTION 4 — YOUTUBE ══ -->
-<section id="s4">
-  <div class="card">
-    <div class="proj-planet"></div>
-    <h2 class="proj-title">YouTube</h2>
-    <p class="proj-desc">
-      Watch my simple gaming content!<br>
-      Come hang out at hotdogpandesal-gaming 🎮
-    </p>
-    <div class="proj-img-wrap">
-      <img src="images/pic03.jpg" alt="YouTube Channel"/>
-    </div>
-    <div class="btn-wrap">
-      <a class="btn" href="https://youtube.com/@hotdogpandesal-gaming?si=mxgZnGF4sPheFv-Z" target="_blank">Watch Now →</a>
-    </div>
-  </div>
-</section>
+    <script>
+        // --- 1. SNOW GENERATOR ---
+        function createSnow() {
+            const container = document.getElementById('snow-container');
+            const flakeCount = 50; 
 
-<!-- ══ SECTION 5 — GITHUB ══ -->
-<section id="s5">
-  <div class="card">
-    <div class="proj-planet"></div>
-    <h2 class="proj-title">GitHub</h2>
-    <p class="proj-desc">
-      View my code and projects!<br>
-      Follow along as I explore the codeverse.
-    </p>
-    <div class="proj-img-wrap">
-      <img src="images/pic04.jpg" alt="GitHub Profile"/>
-    </div>
-    <div class="btn-wrap">
-      <a class="btn" href="https://github.com/Clainesemania" target="_blank">View Repository →</a>
-    </div>
-  </div>
-</section>
+            for (let i = 0; i < flakeCount; i++) {
+                const flake = document.createElement('div');
+                flake.classList.add('snowflake');
+                
+                const size = Math.random() * 5 + 2 + 'px';
+                flake.style.width = size;
+                flake.style.height = size;
+                flake.style.left = Math.random() * 100 + 'vw';
+                
+                const duration = Math.random() * 3 + 2 + 's'; 
+                const delay = Math.random() * 5 + 's';
+                flake.style.animationDuration = duration;
+                flake.style.animationDelay = delay;
+                
+                container.appendChild(flake);
+            }
+        }
 
-<!-- ══ SECTION 6 — STILL IMPROVING ══ -->
-<section id="s6">
-  <div class="card">
-    <div class="footer-orbit"></div>
-    <h2 class="footer-title">Still Improving</h2>
-    <p class="footer-text">
-      Every orbit brings me closer to where I want to be.<br>
-      The universe is vast — and so are the things I'm learning.<br>
-      Thanks for visiting my corner of space. 🚀
-    </p>
-    <div class="progress-bar">
-      <div class="progress-fill"></div>
-    </div>
-    <p class="progress-label">Loading more skills…</p>
-  </div>
-</section>
+        // --- 2. THEME SWITCHER LOGIC ---
+        const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
+        
+        const currentTheme = localStorage.getItem('theme');
+        if (currentTheme) {
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            if (currentTheme === 'night') {
+                toggleSwitch.checked = true;
+            }
+        }
 
-<script>
-  /* ── STARS ── */
-  const canvas = document.getElementById('stars-canvas');
-  const ctx = canvas.getContext('2d');
-  let stars = [];
+        function switchTheme(e) {
+            if (e.target.checked) {
+                document.documentElement.setAttribute('data-theme', 'night');
+                localStorage.setItem('theme', 'night');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'morning');
+                localStorage.setItem('theme', 'morning');
+            }
+        }
 
-  function resizeCanvas() {
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
+        toggleSwitch.addEventListener('change', switchTheme, false);
 
-  function initStars() {
-    stars = [];
-    const count = Math.floor((canvas.width * canvas.height) / 2200);
-    for (let i = 0; i < count; i++) {
-      stars.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 1.4 + 0.2,
-        alpha: Math.random() * 0.7 + 0.1,
-        speed: Math.random() * 0.0004 + 0.0001,
-        phase: Math.random() * Math.PI * 2,
-      });
-    }
-  }
+        // --- 3. SCROLL ANIMATION LOGIC ---
+        const sections = document.querySelectorAll('section');
+        
+        const observerOptions = {
+            root: null, 
+            threshold: 0.5 
+        };
 
-  function drawStars(t) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (const s of stars) {
-      const a = s.alpha * (0.6 + 0.4 * Math.sin(t * s.speed * 1000 + s.phase));
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255,255,255,${a})`;
-      ctx.fill();
-    }
-    requestAnimationFrame(drawStars);
-  }
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('section-active');
+                } else {
+                    entry.target.classList.remove('section-active');
+                }
+            });
+        }, observerOptions);
 
-  resizeCanvas(); initStars(); requestAnimationFrame(drawStars);
-  window.addEventListener('resize', () => { resizeCanvas(); initStars(); });
+        sections.forEach(section => {
+            observer.observe(section);
+        });
 
-  /* ── SECTION NAVIGATION ── */
-  const sections  = Array.from(document.querySelectorAll('section'));
-  const navBtns   = Array.from(document.querySelectorAll('nav button'));
-  let current     = 0;
-  let isAnimating = false;
-
-  function pad(n) { return String(n + 1).padStart(2, '0'); }
-
-  function goTo(idx) {
-    if (isAnimating) return;
-    idx = Math.max(0, Math.min(sections.length - 1, idx));
-    if (idx === current) return;
-
-    isAnimating = true;
-    const prev = current;
-    current = idx;
-
-    // exit
-    sections[prev].classList.add('exit-up');
-    sections[prev].classList.remove('active');
-
-    // enter
-    sections[current].classList.add('active');
-    sections[current].classList.remove('exit-up');
-
-    // clean exit class after transition
-    setTimeout(() => {
-      sections[prev].classList.remove('exit-up');
-      isAnimating = false;
-    }, 460);
-
-    // nav dots
-    navBtns.forEach((b, i) => b.classList.toggle('active', i === current));
-  }
-
-  // init
-  sections[0].classList.add('active');
-  navBtns[0].classList.add('active');
-
-  /* ── SCROLL / KEYBOARD ── */
-  let lastScroll = 0;
-  window.addEventListener('wheel', (e) => {
-    const now = Date.now();
-    if (now - lastScroll < 500) return;
-    lastScroll = now;
-    goTo(e.deltaY > 0 ? current + 1 : current - 1);
-  }, { passive: true });
-
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') goTo(current + 1);
-    if (e.key === 'ArrowUp'   || e.key === 'ArrowLeft')  goTo(current - 1);
-  });
-
-  /* ── TOUCH ── */
-  let touchY = 0;
-  window.addEventListener('touchstart', (e) => { touchY = e.touches[0].clientY; }, { passive: true });
-  window.addEventListener('touchend',   (e) => {
-    const diff = touchY - e.changedTouches[0].clientY;
-    if (Math.a
+        window.onload = createSnow;
+    </script>
+</body>
+</html>
