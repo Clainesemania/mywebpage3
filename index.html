@@ -1,181 +1,330 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Claine - Portfolio</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Claine — Portfolio</title>
+
+  <!-- Unique clean font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Combined CSS -->
+  <style>
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --accent:#06b6d4;
+      --muted:#94a3b8;
+      --glass: rgba(255,255,255,0.03);
+      --radius:14px;
+      --max-width:1100px;
+      --ease: cubic-bezier(.2,.9,.3,1);
+      font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      color-scheme: dark;
+    }
+
+    *{box-sizing:border-box}
+    html,body,#app{height:100%}
+    body{
+      margin:0;
+      background:linear-gradient(180deg,var(--bg),#071023 120%);
+      color:#e6eef6;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      font-size:16px;
+      line-height:1.45;
+    }
+
+    /* Navigation */
+    .nav{
+      position:fixed;
+      left:18px;
+      top:18px;
+      z-index:60;
+      background:var(--glass);
+      padding:8px;
+      border-radius:12px;
+      backdrop-filter: blur(6px) saturate(120%);
+      box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+    }
+    .nav ul{list-style:none;margin:0;padding:6px;display:flex;flex-direction:column;gap:6px}
+    .nav-btn{
+      background:transparent;border:0;color:var(--muted);padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:600;
+      transition:all .28s var(--ease);
+    }
+    .nav-btn:hover{color:var(--accent);transform:translateX(6px)}
+    .nav-btn.active{color:#fff;background:linear-gradient(90deg,rgba(6,182,212,0.08),transparent);box-shadow:inset 0 -1px 0 rgba(255,255,255,0.02)}
+
+    /* Panels container */
+    .panels{height:100vh;width:100%;display:block;position:relative;overflow:hidden}
+    .panel{
+      position:absolute;inset:0;padding:48px;display:flex;align-items:center;justify-content:center;
+      transition: transform .7s var(--ease), opacity .6s var(--ease);
+      transform: translateY(20px) scale(.995);
+      opacity:0;pointer-events:none;
+    }
+    .panel.active{
+      transform: translateY(0) scale(1);
+      opacity:1;pointer-events:auto;
+      z-index:10;
+    }
+
+    /* Panel inner card */
+    .panel-inner{
+      width:min(92%,var(--max-width));
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:var(--radius);
+      padding:36px;
+      box-shadow: 0 10px 40px rgba(2,6,23,0.6);
+      border: 1px solid rgba(255,255,255,0.03);
+      display:block;
+    }
+
+    /* Typography */
+    .title{font-size:clamp(1.6rem,3.6vw,2.8rem);margin:0 0 8px 0;font-weight:700;color:#fff}
+    .lead{font-size:1.05rem;color:var(--muted);margin:0 0 12px 0}
+    .muted{color:var(--muted);margin:6px 0 0 0}
+    .small{font-size:.9rem;color:var(--muted)}
+
+    /* About grid */
+    .about-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-top:18px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.02)}
+    .card h3{margin:0 0 6px 0;color:var(--accent)}
+
+    /* Project layout */
+    .project{display:flex;gap:18px;align-items:center}
+    .project img{width:220px;height:140px;object-fit:cover;border-radius:10px;border:1px solid rgba(255,255,255,0.04);box-shadow:0 8px 30px rgba(2,6,23,0.6)}
+    .project-info h3{margin:0;color:#fff}
+    .btn{
+      display:inline-block;margin-top:10px;padding:10px 14px;border-radius:10px;background:linear-gradient(90deg,var(--accent),#7dd3fc);color:#042028;text-decoration:none;font-weight:700;
+      transition:transform .18s var(--ease), box-shadow .18s var(--ease);
+    }
+    .btn:hover{transform:translateY(-4px);box-shadow:0 10px 30px rgba(6,182,212,0.12)}
+
+    /* Controls */
+    .controls{position:fixed;right:18px;bottom:18px;display:flex;gap:8px;z-index:60}
+    .controls button{background:var(--glass);border:0;padding:10px;border-radius:10px;color:var(--muted);cursor:pointer;backdrop-filter:blur(6px)}
+    .controls button:hover{color:var(--accent)}
+
+    /* Responsive */
+    @media (max-width:900px){
+      .nav{left:50%;transform:translateX(-50%);top:12px}
+      .project{flex-direction:column;align-items:flex-start}
+      .project img{width:100%;height:auto}
+    }
+
+    /* Accessibility: respect reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      .panel, .nav-btn, .btn{transition:none}
+    }
+
+    /* Small visual flourish for section transitions */
+    .panel::before{
+      content:"";
+      position:absolute;inset:0;
+      background:linear-gradient(120deg, rgba(6,182,212,0.02), transparent 30%);
+      border-radius:inherit;
+      pointer-events:none;
+      transform:scale(1.02);
+      opacity:0;
+      transition:opacity .6s var(--ease);
+    }
+    .panel.active::before{opacity:1}
+  </style>
+  <meta name="theme-color" content="#0f1724">
 </head>
 <body>
-    <!-- Audio for transitions -->
-    <audio id="transitionSound" preload="auto">
-        <source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.wav" type="audio/wav">
-    </audio>
+  <div id="app" class="app">
 
     <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">Claine</div>
-            <ul class="nav-menu">
-                <li><a href="#section1" class="nav-link active" data-section="1">Home</a></li>
-                <li><a href="#section2" class="nav-link" data-section="2">About</a></li>
-                <li><a href="#section3" class="nav-link" data-section="3">GDevelop</a></li>
-                <li><a href="#section4" class="nav-link" data-section="4">YouTube</a></li>
-                <li><a href="#section5" class="nav-link" data-section="5">GitHub</a></li>
-                <li><a href="#section6" class="nav-link" data-section="6">Improving</a></li>
-            </ul>
-            <div class="hamburger">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-            </div>
-        </div>
+    <nav class="nav" aria-label="Primary">
+      <ul>
+        <li><button data-target="section-1" class="nav-btn active">Claine & Hello</button></li>
+        <li><button data-target="section-2" class="nav-btn">About Me</button></li>
+        <li><button data-target="section-3" class="nav-btn">GDevelop</button></li>
+        <li><button data-target="section-4" class="nav-btn">YouTube</button></li>
+        <li><button data-target="section-5" class="nav-btn">GitHub</button></li>
+        <li><button data-target="section-6" class="nav-btn">Still Improving</button></li>
+      </ul>
     </nav>
 
-    <!-- Section 1: Claine and Hello -->
-    <section id="section1" class="section active" data-section="1">
-        <div class="section-content">
-            <div class="hero-content">
-                <h1 class="hero-title">Hi, I'm <span class="gradient-text">Claine</span></h1>
-                <p class="hero-subtitle">Welcome to my digital playground</p>
-                <div class="hero-buttons">
-                    <a href="#section2" class="btn-primary scroll-btn" data-section="2">
-                        <i class="fas fa-arrow-down"></i> Explore
-                    </a>
-                </div>
-                <div class="scroll-indicator">
-                    <div class="scroll-line"></div>
-                </div>
-            </div>
+    <!-- Sections (full-screen panels) -->
+    <main class="panels" id="panels">
+      <!-- 1 -->
+      <section id="section-1" class="panel active" tabindex="0" aria-labelledby="s1-title">
+        <div class="panel-inner">
+          <h1 id="s1-title" class="title">Claine</h1>
+          <p class="lead">Hello — welcome to my personal portfolio.</p>
+          <p class="muted">Student • Web Developer in training</p>
         </div>
-    </section>
+      </section>
 
-    <!-- Section 2: About Me -->
-    <section id="section2" class="section" data-section="2">
-        <div class="section-content">
-            <div class="about-content">
-                <h2 class="section-title">About Me <i class="fas fa-user"></i></h2>
-                <div class="about-grid">
-                    <div class="about-card slide-in">
-                        <div class="card-icon">🎮</div>
-                        <h3>Hobbies</h3>
-                        <p>Gaming, Reading, Music</p>
-                    </div>
-                    <div class="about-card slide-in">
-                        <div class="card-icon">🎓</div>
-                        <h3>Student</h3>
-                        <p>Learning web development</p>
-                    </div>
-                    <div class="about-card slide-in">
-                        <div class="card-icon">💼</div>
-                        <h3>Future Plans</h3>
-                        <p>Graduate and support my family</p>
-                    </div>
-                </div>
+      <!-- 2 -->
+      <section id="section-2" class="panel" tabindex="0" aria-labelledby="s2-title">
+        <div class="panel-inner">
+          <h2 id="s2-title" class="title">About Me</h2>
+          <div class="about-grid">
+            <div class="card">
+              <h3>Hobby</h3>
+              <p>Gaming; Reading; Music</p>
             </div>
-        </div>
-    </section>
-
-    <!-- Section 3: GDevelop -->
-    <section id="section3" class="section" data-section="3">
-        <div class="section-content">
-            <div class="project-content">
-                <h2 class="section-title">GDevelop <i class="fas fa-gamepad"></i></h2>
-                <div class="project-showcase">
-                    <div class="project-image-container">
-                        <img src="images/pic02.jpg" alt="GDevelop Game" class="project-image">
-                        <div class="image-overlay">
-                            <a href="https://gd.games/games/6d9ac45b-3c74-42bd-abdd-4529e874b4f0" target="_blank" class="play-btn">
-                                <i class="fas fa-play"></i> Play Game
-                            </a>
-                        </div>
-                    </div>
-                    <div class="project-details">
-                        <p class="project-desc">Check out my game created with GDevelop!</p>
-                        <a href="https://gd.games/games/6d9ac45b-3c74-42bd-abdd-4529e874b4f0" target="_blank" class="btn-secondary">
-                            View Game → 
-                        </a>
-                    </div>
-                </div>
+            <div class="card">
+              <h3>Future Plans</h3>
+              <p>Graduate and find a job to support my family.</p>
             </div>
+          </div>
         </div>
-    </section>
+      </section>
 
-    <!-- Section 4: YouTube -->
-    <section id="section4" class="section" data-section="4">
-        <div class="section-content">
-            <div class="project-content">
-                <h2 class="section-title">YouTube <i class="fab fa-youtube"></i></h2>
-                <div class="project-showcase">
-                    <div class="project-image-container">
-                        <img src="images/pic03.jpg" alt="YouTube Gaming" class="project-image">
-                        <div class="image-overlay">
-                            <i class="fas fa-video"></i>
-                        </div>
-                    </div>
-                    <div class="project-details">
-                        <p class="project-desc">Watch my simple gaming content!</p>
-                        <a href="https://youtube.com/@hotdogpandesal-gaming?si=mxgZnGF4sPheFv-Z" target="_blank" class="btn-secondary">
-                            Watch Now → 
-                        </a>
-                    </div>
-                </div>
+      <!-- 3 -->
+      <section id="section-3" class="panel" tabindex="0" aria-labelledby="s3-title">
+        <div class="panel-inner">
+          <h2 id="s3-title" class="title">GDevelop</h2>
+          <div class="project">
+            <img src="images/pic02.jpg" alt="GDevelop project screenshot" loading="lazy">
+            <div class="project-info">
+              <h3>GDevelop</h3>
+              <p>Check out my game!</p>
+              <a class="btn" href="https://gd.games/games/6d9ac45b-3c74-42bd-abdd-4529e874b4f0" target="_blank" rel="noopener">View →</a>
             </div>
+          </div>
         </div>
-    </section>
+      </section>
 
-    <!-- Section 5: GitHub -->
-    <section id="section5" class="section" data-section="5">
-        <div class="section-content">
-            <div class="project-content">
-                <h2 class="section-title">GitHub <i class="fab fa-github"></i></h2>
-                <div class="project-showcase">
-                    <div class="project-image-container">
-                        <img src="images/pic04.jpg" alt="GitHub Projects" class="project-image">
-                        <div class="image-overlay">
-                            <i class="fas fa-code"></i>
-                        </div>
-                    </div>
-                    <div class="project-details">
-                        <p class="project-desc">View my code and projects!</p>
-                        <a href="https://github.com/Clainesemania" target="_blank" class="btn-secondary">
-                            View GitHub → 
-                        </a>
-                    </div>
-                </div>
+      <!-- 4 -->
+      <section id="section-4" class="panel" tabindex="0" aria-labelledby="s4-title">
+        <div class="panel-inner">
+          <h2 id="s4-title" class="title">YouTube</h2>
+          <div class="project">
+            <img src="images/pic03.jpg" alt="YouTube channel thumbnail" loading="lazy">
+            <div class="project-info">
+              <h3>YouTube</h3>
+              <p>Watch my simple gaming content!</p>
+              <a class="btn" href="https://youtube.com/@hotdogpandesal-gaming?si=mxgZnGF4sPheFv-Z" target="_blank" rel="noopener">View →</a>
             </div>
+          </div>
         </div>
-    </section>
+      </section>
 
-    <!-- Section 6: Still Improving -->
-    <section id="section6" class="section" data-section="6">
-        <div class="section-content">
-            <div class="improving-content">
-                <h2 class="section-title">Still Improving <i class="fas fa-rocket"></i></h2>
-                <div class="improving-grid">
-                    <div class="improving-card">
-                        <i class="fas fa-tools"></i>
-                        <h3>Building Skills</h3>
-                        <p>Every day, I learn something new</p>
-                    </div>
-                    <div class="improving-card">
-                        <i class="fas fa-chart-line"></i>
-                        <h3>Growing Fast</h3>
-                        <p>From student to developer</p>
-                    </div>
-                    <div class="improving-card">
-                        <i class="fas fa-heart"></i>
-                        <h3>With Passion</h3>
-                        <p>This is just the beginning</p>
-                    </div>
-                </div>
-                <p class="final-message">Thanks for visiting! 🚀</p>
+      <!-- 5 -->
+      <section id="section-5" class="panel" tabindex="0" aria-labelledby="s5-title">
+        <div class="panel-inner">
+          <h2 id="s5-title" class="title">GitHub</h2>
+          <div class="project">
+            <img src="images/pic04.jpg" alt="GitHub profile" loading="lazy">
+            <div class="project-info">
+              <h3>GitHub</h3>
+              <p>View my code and projects!</p>
+              <a class="btn" href="https://github.com/Clainesemania" target="_blank" rel="noopener">View →</a>
             </div>
+          </div>
         </div>
-    </section>
+      </section>
 
-    <script src="script.js"></script>
+      <!-- 6 -->
+      <section id="section-6" class="panel" tabindex="0" aria-labelledby="s6-title">
+        <div class="panel-inner">
+          <h2 id="s6-title" class="title">Still Improving</h2>
+          <p class="lead">This site is a work in progress — always learning and refining.</p>
+          <footer class="panel-footer">
+            <p class="muted">____________________________</p>
+            <p class="small">Still Improving</p>
+          </footer>
+        </div>
+      </section>
+    </main>
+
+    <!-- Small page controls -->
+    <div class="controls">
+      <button id="prev" aria-label="Previous section">◀</button>
+      <button id="next" aria-label="Next section">▶</button>
+    </div>
+
+  </div>
+
+  <!-- Inline JavaScript -->
+  <script>
+    // Smooth single-section navigation with keyboard and swipe support
+    (function () {
+      const navButtons = document.querySelectorAll('.nav-btn');
+      const panels = document.querySelectorAll('.panel');
+      const prevBtn = document.getElementById('prev');
+      const nextBtn = document.getElementById('next');
+
+      let currentIndex = 0;
+
+      function showPanel(index, focus = true) {
+        if (index < 0) index = panels.length - 1;
+        if (index >= panels.length) index = 0;
+        if (index === currentIndex) return;
+
+        // Remove active from previous
+        panels[currentIndex].classList.remove('active');
+        navButtons[currentIndex].classList.remove('active');
+        panels[currentIndex].setAttribute('aria-hidden', 'true');
+
+        // Add active to new
+        panels[index].classList.add('active');
+        navButtons[index].classList.add('active');
+        panels[index].removeAttribute('aria-hidden');
+
+        // Update index
+        currentIndex = index;
+
+        // Focus for accessibility
+        if (focus) panels[index].focus();
+      }
+
+      // Map nav buttons to panels
+      navButtons.forEach((btn, i) => {
+        btn.addEventListener('click', () => {
+          showPanel(i);
+        });
+      });
+
+      // Prev / Next controls
+      prevBtn.addEventListener('click', () => showPanel(currentIndex - 1));
+      nextBtn.addEventListener('click', () => showPanel(currentIndex + 1));
+
+      // Keyboard navigation (left/right or j/k)
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'j') {
+          showPanel(currentIndex + 1);
+        } else if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'k') {
+          showPanel(currentIndex - 1);
+        } else if (e.key === 'Home') {
+          showPanel(0);
+        } else if (e.key === 'End') {
+          showPanel(panels.length - 1);
+        }
+      });
+
+      // Touch swipe support
+      let touchStartX = 0;
+      let touchEndX = 0;
+      const threshold = 50;
+
+      document.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+      }, {passive:true});
+
+      document.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        const diff = touchStartX - touchEndX;
+        if (Math.abs(diff) > threshold) {
+          if (diff > 0) showPanel(currentIndex + 1);
+          else showPanel(currentIndex - 1);
+        }
+      }, {passive:true});
+
+      // Initialize aria-hidden for non-active panels
+      panels.forEach((p, i) => {
+        if (!p.classList.contains('active')) p.setAttribute('aria-hidden', 'true');
+        else p.removeAttribute('aria-hidden');
+      });
+
+      // Ensure only one panel is visible in DOM flow for screen readers
+    })();
+  </script>
 </body>
-  </html>
+</html>
