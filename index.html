@@ -1,1 +1,181 @@
-html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claine - Portfolio</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Audio for transitions -->
+    <audio id="transitionSound" preload="auto">
+        <source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.wav" type="audio/wav">
+    </audio>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">Claine</div>
+            <ul class="nav-menu">
+                <li><a href="#section1" class="nav-link active" data-section="1">Home</a></li>
+                <li><a href="#section2" class="nav-link" data-section="2">About</a></li>
+                <li><a href="#section3" class="nav-link" data-section="3">GDevelop</a></li>
+                <li><a href="#section4" class="nav-link" data-section="4">YouTube</a></li>
+                <li><a href="#section5" class="nav-link" data-section="5">GitHub</a></li>
+                <li><a href="#section6" class="nav-link" data-section="6">Improving</a></li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Section 1: Claine and Hello -->
+    <section id="section1" class="section active" data-section="1">
+        <div class="section-content">
+            <div class="hero-content">
+                <h1 class="hero-title">Hi, I'm <span class="gradient-text">Claine</span></h1>
+                <p class="hero-subtitle">Welcome to my digital playground</p>
+                <div class="hero-buttons">
+                    <a href="#section2" class="btn-primary scroll-btn" data-section="2">
+                        <i class="fas fa-arrow-down"></i> Explore
+                    </a>
+                </div>
+                <div class="scroll-indicator">
+                    <div class="scroll-line"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 2: About Me -->
+    <section id="section2" class="section" data-section="2">
+        <div class="section-content">
+            <div class="about-content">
+                <h2 class="section-title">About Me <i class="fas fa-user"></i></h2>
+                <div class="about-grid">
+                    <div class="about-card slide-in">
+                        <div class="card-icon">🎮</div>
+                        <h3>Hobbies</h3>
+                        <p>Gaming, Reading, Music</p>
+                    </div>
+                    <div class="about-card slide-in">
+                        <div class="card-icon">🎓</div>
+                        <h3>Student</h3>
+                        <p>Learning web development</p>
+                    </div>
+                    <div class="about-card slide-in">
+                        <div class="card-icon">💼</div>
+                        <h3>Future Plans</h3>
+                        <p>Graduate and support my family</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 3: GDevelop -->
+    <section id="section3" class="section" data-section="3">
+        <div class="section-content">
+            <div class="project-content">
+                <h2 class="section-title">GDevelop <i class="fas fa-gamepad"></i></h2>
+                <div class="project-showcase">
+                    <div class="project-image-container">
+                        <img src="images/pic02.jpg" alt="GDevelop Game" class="project-image">
+                        <div class="image-overlay">
+                            <a href="https://gd.games/games/6d9ac45b-3c74-42bd-abdd-4529e874b4f0" target="_blank" class="play-btn">
+                                <i class="fas fa-play"></i> Play Game
+                            </a>
+                        </div>
+                    </div>
+                    <div class="project-details">
+                        <p class="project-desc">Check out my game created with GDevelop!</p>
+                        <a href="https://gd.games/games/6d9ac45b-3c74-42bd-abdd-4529e874b4f0" target="_blank" class="btn-secondary">
+                            View Game → 
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 4: YouTube -->
+    <section id="section4" class="section" data-section="4">
+        <div class="section-content">
+            <div class="project-content">
+                <h2 class="section-title">YouTube <i class="fab fa-youtube"></i></h2>
+                <div class="project-showcase">
+                    <div class="project-image-container">
+                        <img src="images/pic03.jpg" alt="YouTube Gaming" class="project-image">
+                        <div class="image-overlay">
+                            <i class="fas fa-video"></i>
+                        </div>
+                    </div>
+                    <div class="project-details">
+                        <p class="project-desc">Watch my simple gaming content!</p>
+                        <a href="https://youtube.com/@hotdogpandesal-gaming?si=mxgZnGF4sPheFv-Z" target="_blank" class="btn-secondary">
+                            Watch Now → 
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 5: GitHub -->
+    <section id="section5" class="section" data-section="5">
+        <div class="section-content">
+            <div class="project-content">
+                <h2 class="section-title">GitHub <i class="fab fa-github"></i></h2>
+                <div class="project-showcase">
+                    <div class="project-image-container">
+                        <img src="images/pic04.jpg" alt="GitHub Projects" class="project-image">
+                        <div class="image-overlay">
+                            <i class="fas fa-code"></i>
+                        </div>
+                    </div>
+                    <div class="project-details">
+                        <p class="project-desc">View my code and projects!</p>
+                        <a href="https://github.com/Clainesemania" target="_blank" class="btn-secondary">
+                            View GitHub → 
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 6: Still Improving -->
+    <section id="section6" class="section" data-section="6">
+        <div class="section-content">
+            <div class="improving-content">
+                <h2 class="section-title">Still Improving <i class="fas fa-rocket"></i></h2>
+                <div class="improving-grid">
+                    <div class="improving-card">
+                        <i class="fas fa-tools"></i>
+                        <h3>Building Skills</h3>
+                        <p>Every day, I learn something new</p>
+                    </div>
+                    <div class="improving-card">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>Growing Fast</h3>
+                        <p>From student to developer</p>
+                    </div>
+                    <div class="improving-card">
+                        <i class="fas fa-heart"></i>
+                        <h3>With Passion</h3>
+                        <p>This is just the beginning</p>
+                    </div>
+                </div>
+                <p class="final-message">Thanks for visiting! 🚀</p>
+            </div>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+  </html>
