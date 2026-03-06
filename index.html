@@ -1,330 +1,654 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Claine — Portfolio</title>
-
-  <!-- Unique clean font -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-
-  <!-- Combined CSS -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet"/>
   <style>
-    :root{
-      --bg:#0f1724;
-      --card:#0b1220;
-      --accent:#06b6d4;
-      --muted:#94a3b8;
-      --glass: rgba(255,255,255,0.03);
-      --radius:14px;
-      --max-width:1100px;
-      --ease: cubic-bezier(.2,.9,.3,1);
-      font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      color-scheme: dark;
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold:   #f5c542;
+      --teal:   #38d9c0;
+      --purple: #a855f7;
+      --red:    #ef4444;
+      --blue:   #3b82f6;
+      --gray:   #94a3b8;
+      --dark:   #04060f;
+      --glass:  rgba(255,255,255,0.04);
     }
 
-    *{box-sizing:border-box}
-    html,body,#app{height:100%}
-    body{
-      margin:0;
-      background:linear-gradient(180deg,var(--bg),#071023 120%);
-      color:#e6eef6;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      font-size:16px;
-      line-height:1.45;
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      background: var(--dark);
+      font-family: 'Exo 2', sans-serif;
+      color: #e2e8f0;
     }
 
-    /* Navigation */
-    .nav{
-      position:fixed;
-      left:18px;
-      top:18px;
-      z-index:60;
-      background:var(--glass);
-      padding:8px;
-      border-radius:12px;
-      backdrop-filter: blur(6px) saturate(120%);
-      box-shadow: 0 6px 18px rgba(2,6,23,0.6);
-    }
-    .nav ul{list-style:none;margin:0;padding:6px;display:flex;flex-direction:column;gap:6px}
-    .nav-btn{
-      background:transparent;border:0;color:var(--muted);padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:600;
-      transition:all .28s var(--ease);
-    }
-    .nav-btn:hover{color:var(--accent);transform:translateX(6px)}
-    .nav-btn.active{color:#fff;background:linear-gradient(90deg,rgba(6,182,212,0.08),transparent);box-shadow:inset 0 -1px 0 rgba(255,255,255,0.02)}
-
-    /* Panels container */
-    .panels{height:100vh;width:100%;display:block;position:relative;overflow:hidden}
-    .panel{
-      position:absolute;inset:0;padding:48px;display:flex;align-items:center;justify-content:center;
-      transition: transform .7s var(--ease), opacity .6s var(--ease);
-      transform: translateY(20px) scale(.995);
-      opacity:0;pointer-events:none;
-    }
-    .panel.active{
-      transform: translateY(0) scale(1);
-      opacity:1;pointer-events:auto;
-      z-index:10;
+    /* ── STAR CANVAS ── */
+    #stars-canvas {
+      position: fixed; inset: 0;
+      z-index: 0;
+      pointer-events: none;
     }
 
-    /* Panel inner card */
-    .panel-inner{
-      width:min(92%,var(--max-width));
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      border-radius:var(--radius);
-      padding:36px;
-      box-shadow: 0 10px 40px rgba(2,6,23,0.6);
-      border: 1px solid rgba(255,255,255,0.03);
-      display:block;
+    /* ── ORBIT RINGS (decorative) ── */
+    .orbit-ring {
+      position: fixed;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.05);
+      pointer-events: none;
+      z-index: 0;
+      transform: translate(-50%, -50%);
     }
 
-    /* Typography */
-    .title{font-size:clamp(1.6rem,3.6vw,2.8rem);margin:0 0 8px 0;font-weight:700;color:#fff}
-    .lead{font-size:1.05rem;color:var(--muted);margin:0 0 12px 0}
-    .muted{color:var(--muted);margin:6px 0 0 0}
-    .small{font-size:.9rem;color:var(--muted)}
-
-    /* About grid */
-    .about-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-top:18px}
-    .card{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.02)}
-    .card h3{margin:0 0 6px 0;color:var(--accent)}
-
-    /* Project layout */
-    .project{display:flex;gap:18px;align-items:center}
-    .project img{width:220px;height:140px;object-fit:cover;border-radius:10px;border:1px solid rgba(255,255,255,0.04);box-shadow:0 8px 30px rgba(2,6,23,0.6)}
-    .project-info h3{margin:0;color:#fff}
-    .btn{
-      display:inline-block;margin-top:10px;padding:10px 14px;border-radius:10px;background:linear-gradient(90deg,var(--accent),#7dd3fc);color:#042028;text-decoration:none;font-weight:700;
-      transition:transform .18s var(--ease), box-shadow .18s var(--ease);
-    }
-    .btn:hover{transform:translateY(-4px);box-shadow:0 10px 30px rgba(6,182,212,0.12)}
-
-    /* Controls */
-    .controls{position:fixed;right:18px;bottom:18px;display:flex;gap:8px;z-index:60}
-    .controls button{background:var(--glass);border:0;padding:10px;border-radius:10px;color:var(--muted);cursor:pointer;backdrop-filter:blur(6px)}
-    .controls button:hover{color:var(--accent)}
-
-    /* Responsive */
-    @media (max-width:900px){
-      .nav{left:50%;transform:translateX(-50%);top:12px}
-      .project{flex-direction:column;align-items:flex-start}
-      .project img{width:100%;height:auto}
+    /* ── FLOATING PLANETS ── */
+    .planet {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+      filter: blur(0.5px);
     }
 
-    /* Accessibility: respect reduced motion */
-    @media (prefers-reduced-motion: reduce){
-      .panel, .nav-btn, .btn{transition:none}
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 50%;
+      right: 2rem;
+      transform: translateY(-50%);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      align-items: center;
+    }
+    nav button {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.3);
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    nav button::after { display: none; }
+    nav button:hover,
+    nav button.active {
+      background: var(--gold);
+      border-color: var(--gold);
+      box-shadow: 0 0 12px var(--gold);
     }
 
-    /* Small visual flourish for section transitions */
-    .panel::before{
-      content:"";
-      position:absolute;inset:0;
-      background:linear-gradient(120deg, rgba(6,182,212,0.02), transparent 30%);
-      border-radius:inherit;
-      pointer-events:none;
-      transform:scale(1.02);
-      opacity:0;
-      transition:opacity .6s var(--ease);
+    /* ── SECTIONS ── */
+    section {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.45s cubic-bezier(0.25,0.46,0.45,0.94),
+                  transform 0.45s cubic-bezier(0.25,0.46,0.45,0.94);
+      transform: translateY(18px);
+      padding: 2rem;
+      will-change: opacity, transform;
     }
-    .panel.active::before{opacity:1}
+    section.active {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateY(0);
+    }
+    section.exit-up {
+      opacity: 0;
+      transform: translateY(-18px);
+    }
+
+    /* ── INNER CARD ── */
+    .card {
+      background: rgba(4,6,15,0.7);
+      backdrop-filter: blur(18px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      padding: clamp(2rem, 5vw, 4rem);
+      max-width: 780px;
+      width: 100%;
+      box-shadow: 0 8px 60px rgba(0,0,0,0.6),
+                  inset 0 1px 0 rgba(255,255,255,0.06);
+      position: relative;
+      overflow: hidden;
+      will-change: transform;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: -60px; left: -60px;
+      width: 220px; height: 220px;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.18;
+      pointer-events: none;
+    }
+
+    /* ── SECTION 1 — HERO ── */
+    #s1 .card::before { background: var(--gold); }
+    .hero-sun {
+      width: 90px; height: 90px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #fffbe6, #f5c542 50%, #d97706);
+      box-shadow: 0 0 40px #f5c54288, 0 0 90px #f5c54244, 0 0 0 12px rgba(245,197,66,0.08);
+      margin: 0 auto 1.8rem;
+      animation: pulse-sun 3s ease-in-out infinite;
+    }
+    @keyframes pulse-sun {
+      0%,100% { box-shadow: 0 0 40px #f5c54288,0 0 90px #f5c54244,0 0 0 12px rgba(245,197,66,0.08); }
+      50%      { box-shadow: 0 0 55px #f5c542bb,0 0 120px #f5c54266,0 0 0 20px rgba(245,197,66,0.12); }
+    }
+    .hero-name {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(2.4rem, 7vw, 4.2rem);
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      background: linear-gradient(135deg, #f5c542, #fff7cc, #f5c542);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+    .hero-sub {
+      font-family: 'Exo 2', sans-serif;
+      font-size: clamp(0.85rem, 2vw, 1.05rem);
+      font-weight: 300;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(245,197,66,0.6);
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .hero-intro {
+      text-align: center;
+      font-size: 1.05rem;
+      line-height: 1.9;
+      color: rgba(226,232,240,0.75);
+    }
+    .scroll-hint {
+      margin-top: 2.5rem;
+      text-align: center;
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(245,197,66,0.35);
+      animation: blink 2.5s ease-in-out infinite;
+    }
+    @keyframes blink {
+      0%,100% { opacity: 0.35; }
+      50%      { opacity: 0.9; }
+    }
+
+    /* ── SECTION 2 — ABOUT ── */
+    #s2 .card::before { background: var(--teal); }
+    .section-label {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 0.6rem;
+    }
+    .section-title {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 700;
+      margin-bottom: 2rem;
+      color: #f1f5f9;
+    }
+    .about-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 1.2rem;
+    }
+    .about-card {
+      background: rgba(56,217,192,0.06);
+      border: 1px solid rgba(56,217,192,0.15);
+      border-radius: 14px;
+      padding: 1.4rem 1.6rem;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .about-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 0 24px rgba(56,217,192,0.15);
+    }
+    .about-card h3 {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.85rem;
+      color: var(--teal);
+      margin-bottom: 0.6rem;
+      letter-spacing: 0.1em;
+    }
+    .about-card p { font-size: 0.95rem; color: rgba(226,232,240,0.7); line-height: 1.7; }
+
+    /* ── PROJECT SECTIONS (3,4,5) ── */
+    .proj-planet {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      margin: 0 auto 1.5rem;
+      position: relative;
+    }
+    #s3 .card::before { background: var(--purple); }
+    #s3 .proj-planet {
+      background: radial-gradient(circle at 35% 30%, #c084fc, #7c3aed 60%, #4c1d95);
+      box-shadow: 0 0 30px rgba(168,85,247,0.5), 0 0 60px rgba(168,85,247,0.2);
+      animation: float 4s ease-in-out infinite;
+    }
+    #s4 .card::before { background: var(--red); }
+    #s4 .proj-planet {
+      background: radial-gradient(circle at 35% 30%, #fca5a5, #dc2626 60%, #7f1d1d);
+      box-shadow: 0 0 30px rgba(239,68,68,0.5), 0 0 60px rgba(239,68,68,0.2);
+      animation: float 4.5s ease-in-out infinite;
+    }
+    #s5 .card::before { background: var(--gray); }
+    #s5 .proj-planet {
+      background: radial-gradient(circle at 35% 30%, #cbd5e1, #475569 60%, #1e293b);
+      box-shadow: 0 0 30px rgba(148,163,184,0.4), 0 0 60px rgba(148,163,184,0.15);
+      animation: float 5s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-10px); }
+    }
+
+    .proj-title {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 0.4rem;
+    }
+    #s3 .proj-title { color: #c084fc; }
+    #s4 .proj-title { color: #f87171; }
+    #s5 .proj-title { color: #94a3b8; }
+
+    .proj-desc {
+      text-align: center;
+      color: rgba(226,232,240,0.6);
+      font-size: 1rem;
+      line-height: 1.8;
+      margin-bottom: 2rem;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .proj-img-wrap {
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto 2rem;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.07);
+      box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+    }
+    .proj-img-wrap img {
+      width: 100%; height: auto;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+    .proj-img-wrap:hover img { transform: scale(1.04); }
+
+    .btn-wrap { text-align: center; }
+    .btn {
+      display: inline-block;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 0.75rem 2rem;
+      border-radius: 50px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    #s3 .btn { background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.5); color: #c084fc; }
+    #s3 .btn:hover { background: rgba(168,85,247,0.3); box-shadow: 0 0 20px rgba(168,85,247,0.4); }
+    #s4 .btn { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.5); color: #f87171; }
+    #s4 .btn:hover { background: rgba(239,68,68,0.3); box-shadow: 0 0 20px rgba(239,68,68,0.4); }
+    #s5 .btn { background: rgba(148,163,184,0.1); border: 1px solid rgba(148,163,184,0.4); color: #94a3b8; }
+    #s5 .btn:hover { background: rgba(148,163,184,0.2); box-shadow: 0 0 20px rgba(148,163,184,0.3); }
+
+    /* ── SECTION 6 — FOOTER ── */
+    #s6 .card::before { background: var(--blue); }
+    .footer-orbit {
+      width: 70px; height: 70px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #93c5fd, #2563eb 60%, #1e3a8a);
+      box-shadow: 0 0 30px rgba(59,130,246,0.5);
+      margin: 0 auto 1.8rem;
+      animation: float 6s ease-in-out infinite;
+    }
+    .footer-title {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(1.5rem,4vw,2.2rem);
+      font-weight: 700;
+      text-align: center;
+      color: #93c5fd;
+      margin-bottom: 1rem;
+    }
+    .footer-text {
+      text-align: center;
+      color: rgba(226,232,240,0.55);
+      font-size: 0.95rem;
+      line-height: 1.9;
+      max-width: 420px;
+      margin: 0 auto 2rem;
+    }
+    .progress-bar {
+      max-width: 300px;
+      margin: 0 auto;
+      height: 4px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, #3b82f6, #38d9c0);
+      animation: progress 3s ease-in-out infinite alternate;
+    }
+    @keyframes progress {
+      0%  { width: 30%; }
+      100%{ width: 85%; }
+    }
+    .progress-label {
+      text-align: center;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(59,130,246,0.5);
+      margin-top: 0.6rem;
+    }
+
+    /* ── SCROLL ARROWS ── */
+    .scroll-btns {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      display: flex;
+      gap: 1rem;
+    }
+    .scroll-btns button {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 50%;
+      width: 40px; height: 40px;
+      cursor: pointer;
+      color: rgba(255,255,255,0.4);
+      font-size: 1rem;
+      transition: all 0.3s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .scroll-btns button:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+      box-shadow: 0 0 12px rgba(245,197,66,0.3);
+    }
+
+
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      nav { right: 0.8rem; }
+      .card { padding: 1.6rem 1.2rem; }
+      .scroll-btns button { width: 34px; height: 34px; }
+    }
   </style>
-  <meta name="theme-color" content="#0f1724">
 </head>
 <body>
-  <div id="app" class="app">
 
-    <!-- Navigation -->
-    <nav class="nav" aria-label="Primary">
-      <ul>
-        <li><button data-target="section-1" class="nav-btn active">Claine & Hello</button></li>
-        <li><button data-target="section-2" class="nav-btn">About Me</button></li>
-        <li><button data-target="section-3" class="nav-btn">GDevelop</button></li>
-        <li><button data-target="section-4" class="nav-btn">YouTube</button></li>
-        <li><button data-target="section-5" class="nav-btn">GitHub</button></li>
-        <li><button data-target="section-6" class="nav-btn">Still Improving</button></li>
-      </ul>
-    </nav>
+<canvas id="stars-canvas"></canvas>
 
-    <!-- Sections (full-screen panels) -->
-    <main class="panels" id="panels">
-      <!-- 1 -->
-      <section id="section-1" class="panel active" tabindex="0" aria-labelledby="s1-title">
-        <div class="panel-inner">
-          <h1 id="s1-title" class="title">Claine</h1>
-          <p class="lead">Hello — welcome to my personal portfolio.</p>
-          <p class="muted">Student • Web Developer in training</p>
-        </div>
-      </section>
+<!-- Orbit Rings -->
+<div class="orbit-ring" style="width:320px;height:320px;top:50%;left:50%"></div>
+<div class="orbit-ring" style="width:560px;height:560px;top:50%;left:50%"></div>
+<div class="orbit-ring" style="width:800px;height:800px;top:50%;left:50%"></div>
 
-      <!-- 2 -->
-      <section id="section-2" class="panel" tabindex="0" aria-labelledby="s2-title">
-        <div class="panel-inner">
-          <h2 id="s2-title" class="title">About Me</h2>
-          <div class="about-grid">
-            <div class="card">
-              <h3>Hobby</h3>
-              <p>Gaming; Reading; Music</p>
-            </div>
-            <div class="card">
-              <h3>Future Plans</h3>
-              <p>Graduate and find a job to support my family.</p>
-            </div>
-          </div>
-        </div>
-      </section>
+<!-- Floating ambient planets -->
+<div class="planet" style="width:14px;height:14px;background:#f5c542;top:15%;left:8%;opacity:0.5;animation:float 7s ease-in-out infinite;"></div>
+<div class="planet" style="width:9px;height:9px;background:#38d9c0;top:70%;left:5%;opacity:0.4;animation:float 9s ease-in-out infinite 1s;"></div>
+<div class="planet" style="width:18px;height:18px;background:#a855f7;top:25%;right:10%;opacity:0.4;animation:float 8s ease-in-out infinite 2s;"></div>
+<div class="planet" style="width:7px;height:7px;background:#ef4444;top:80%;right:12%;opacity:0.5;animation:float 6s ease-in-out infinite 0.5s;"></div>
+<div class="planet" style="width:11px;height:11px;background:#3b82f6;top:55%;left:92%;opacity:0.4;animation:float 10s ease-in-out infinite 3s;"></div>
 
-      <!-- 3 -->
-      <section id="section-3" class="panel" tabindex="0" aria-labelledby="s3-title">
-        <div class="panel-inner">
-          <h2 id="s3-title" class="title">GDevelop</h2>
-          <div class="project">
-            <img src="images/pic02.jpg" alt="GDevelop project screenshot" loading="lazy">
-            <div class="project-info">
-              <h3>GDevelop</h3>
-              <p>Check out my game!</p>
-              <a class="btn" href="https://gd.games/games/6d9ac45b-3c74-42bd-abdd-4529e874b4f0" target="_blank" rel="noopener">View →</a>
-            </div>
-          </div>
-        </div>
-      </section>
+<!-- Navigation -->
+<nav id="nav">
+  <button data-label="Hello" onclick="goTo(0)"></button>
+  <button data-label="About Me" onclick="goTo(1)"></button>
+  <button data-label="GDevelop" onclick="goTo(2)"></button>
+  <button data-label="YouTube" onclick="goTo(3)"></button>
+  <button data-label="GitHub" onclick="goTo(4)"></button>
+  <button data-label="Still Improving" onclick="goTo(5)"></button>
+</nav>
 
-      <!-- 4 -->
-      <section id="section-4" class="panel" tabindex="0" aria-labelledby="s4-title">
-        <div class="panel-inner">
-          <h2 id="s4-title" class="title">YouTube</h2>
-          <div class="project">
-            <img src="images/pic03.jpg" alt="YouTube channel thumbnail" loading="lazy">
-            <div class="project-info">
-              <h3>YouTube</h3>
-              <p>Watch my simple gaming content!</p>
-              <a class="btn" href="https://youtube.com/@hotdogpandesal-gaming?si=mxgZnGF4sPheFv-Z" target="_blank" rel="noopener">View →</a>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      <!-- 5 -->
-      <section id="section-5" class="panel" tabindex="0" aria-labelledby="s5-title">
-        <div class="panel-inner">
-          <h2 id="s5-title" class="title">GitHub</h2>
-          <div class="project">
-            <img src="images/pic04.jpg" alt="GitHub profile" loading="lazy">
-            <div class="project-info">
-              <h3>GitHub</h3>
-              <p>View my code and projects!</p>
-              <a class="btn" href="https://github.com/Clainesemania" target="_blank" rel="noopener">View →</a>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      <!-- 6 -->
-      <section id="section-6" class="panel" tabindex="0" aria-labelledby="s6-title">
-        <div class="panel-inner">
-          <h2 id="s6-title" class="title">Still Improving</h2>
-          <p class="lead">This site is a work in progress — always learning and refining.</p>
-          <footer class="panel-footer">
-            <p class="muted">____________________________</p>
-            <p class="small">Still Improving</p>
-          </footer>
-        </div>
-      </section>
-    </main>
+<!-- Scroll Arrows -->
+<div class="scroll-btns">
+  <button onclick="goTo(current-1)" title="Previous">↑</button>
+  <button onclick="goTo(current+1)" title="Next">↓</button>
+</div>
 
-    <!-- Small page controls -->
-    <div class="controls">
-      <button id="prev" aria-label="Previous section">◀</button>
-      <button id="next" aria-label="Next section">▶</button>
-    </div>
-
+<!-- ══ SECTION 1 — HELLO ══ -->
+<section id="s1">
+  <div class="card">
+    <div class="hero-sun"></div>
+    <h1 class="hero-name">CLAINE</h1>
+    <p class="hero-sub">— Personal Portfolio —</p>
+    <p class="hero-intro">
+      Hi! My name is Claine.<br>
+      I'm a student learning web development,<br>
+      and this is my corner of the universe.
+    </p>
+    <p class="scroll-hint">↓ Scroll or navigate to explore ↓</p>
   </div>
+</section>
 
-  <!-- Inline JavaScript -->
-  <script>
-    // Smooth single-section navigation with keyboard and swipe support
-    (function () {
-      const navButtons = document.querySelectorAll('.nav-btn');
-      const panels = document.querySelectorAll('.panel');
-      const prevBtn = document.getElementById('prev');
-      const nextBtn = document.getElementById('next');
+<!-- ══ SECTION 2 — ABOUT ══ -->
+<section id="s2">
+  <div class="card">
+    <p class="section-label">// Orbit 02</p>
+    <h2 class="section-title">About Me 😉</h2>
+    <div class="about-grid">
+      <div class="about-card">
+        <h3>⭐ Hobby</h3>
+        <p>Gaming, Reading &amp; Music — my three favorite galaxies to explore.</p>
+      </div>
+      <div class="about-card">
+        <h3>⭐ Future Plans</h3>
+        <p>Graduate, land a job, and support my family — one orbit at a time.</p>
+      </div>
+      <div class="about-card">
+        <h3>⭐ Currently</h3>
+        <p>Learning web development and building projects to grow my skills every day.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-      let currentIndex = 0;
+<!-- ══ SECTION 3 — GDEVELOP ══ -->
+<section id="s3">
+  <div class="card">
+    <div class="proj-planet"></div>
+    <h2 class="proj-title">GDevelop</h2>
+    <p class="proj-desc">
+      Check out my game! Built with GDevelop —<br>
+      a no-code game engine for everyone.
+    </p>
+    <div class="proj-img-wrap">
+      <img src="images/pic02.jpg" alt="GDevelop Game"/>
+    </div>
+    <div class="btn-wrap">
+      <a class="btn" href="https://gd.games/games/6d9ac45b-3c74-42bd-abdd-4529e874b4f0" target="_blank">Launch Game →</a>
+    </div>
+  </div>
+</section>
 
-      function showPanel(index, focus = true) {
-        if (index < 0) index = panels.length - 1;
-        if (index >= panels.length) index = 0;
-        if (index === currentIndex) return;
+<!-- ══ SECTION 4 — YOUTUBE ══ -->
+<section id="s4">
+  <div class="card">
+    <div class="proj-planet"></div>
+    <h2 class="proj-title">YouTube</h2>
+    <p class="proj-desc">
+      Watch my simple gaming content!<br>
+      Come hang out at hotdogpandesal-gaming 🎮
+    </p>
+    <div class="proj-img-wrap">
+      <img src="images/pic03.jpg" alt="YouTube Channel"/>
+    </div>
+    <div class="btn-wrap">
+      <a class="btn" href="https://youtube.com/@hotdogpandesal-gaming?si=mxgZnGF4sPheFv-Z" target="_blank">Watch Now →</a>
+    </div>
+  </div>
+</section>
 
-        // Remove active from previous
-        panels[currentIndex].classList.remove('active');
-        navButtons[currentIndex].classList.remove('active');
-        panels[currentIndex].setAttribute('aria-hidden', 'true');
+<!-- ══ SECTION 5 — GITHUB ══ -->
+<section id="s5">
+  <div class="card">
+    <div class="proj-planet"></div>
+    <h2 class="proj-title">GitHub</h2>
+    <p class="proj-desc">
+      View my code and projects!<br>
+      Follow along as I explore the codeverse.
+    </p>
+    <div class="proj-img-wrap">
+      <img src="images/pic04.jpg" alt="GitHub Profile"/>
+    </div>
+    <div class="btn-wrap">
+      <a class="btn" href="https://github.com/Clainesemania" target="_blank">View Repository →</a>
+    </div>
+  </div>
+</section>
 
-        // Add active to new
-        panels[index].classList.add('active');
-        navButtons[index].classList.add('active');
-        panels[index].removeAttribute('aria-hidden');
+<!-- ══ SECTION 6 — STILL IMPROVING ══ -->
+<section id="s6">
+  <div class="card">
+    <div class="footer-orbit"></div>
+    <h2 class="footer-title">Still Improving</h2>
+    <p class="footer-text">
+      Every orbit brings me closer to where I want to be.<br>
+      The universe is vast — and so are the things I'm learning.<br>
+      Thanks for visiting my corner of space. 🚀
+    </p>
+    <div class="progress-bar">
+      <div class="progress-fill"></div>
+    </div>
+    <p class="progress-label">Loading more skills…</p>
+  </div>
+</section>
 
-        // Update index
-        currentIndex = index;
+<script>
+  /* ── STARS ── */
+  const canvas = document.getElementById('stars-canvas');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
 
-        // Focus for accessibility
-        if (focus) panels[index].focus();
-      }
+  function resizeCanvas() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
 
-      // Map nav buttons to panels
-      navButtons.forEach((btn, i) => {
-        btn.addEventListener('click', () => {
-          showPanel(i);
-        });
+  function initStars() {
+    stars = [];
+    const count = Math.floor((canvas.width * canvas.height) / 2200);
+    for (let i = 0; i < count; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.4 + 0.2,
+        alpha: Math.random() * 0.7 + 0.1,
+        speed: Math.random() * 0.0004 + 0.0001,
+        phase: Math.random() * Math.PI * 2,
       });
+    }
+  }
 
-      // Prev / Next controls
-      prevBtn.addEventListener('click', () => showPanel(currentIndex - 1));
-      nextBtn.addEventListener('click', () => showPanel(currentIndex + 1));
+  function drawStars(t) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (const s of stars) {
+      const a = s.alpha * (0.6 + 0.4 * Math.sin(t * s.speed * 1000 + s.phase));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${a})`;
+      ctx.fill();
+    }
+    requestAnimationFrame(drawStars);
+  }
 
-      // Keyboard navigation (left/right or j/k)
-      window.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'j') {
-          showPanel(currentIndex + 1);
-        } else if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'k') {
-          showPanel(currentIndex - 1);
-        } else if (e.key === 'Home') {
-          showPanel(0);
-        } else if (e.key === 'End') {
-          showPanel(panels.length - 1);
-        }
-      });
+  resizeCanvas(); initStars(); requestAnimationFrame(drawStars);
+  window.addEventListener('resize', () => { resizeCanvas(); initStars(); });
 
-      // Touch swipe support
-      let touchStartX = 0;
-      let touchEndX = 0;
-      const threshold = 50;
+  /* ── SECTION NAVIGATION ── */
+  const sections  = Array.from(document.querySelectorAll('section'));
+  const navBtns   = Array.from(document.querySelectorAll('nav button'));
+  let current     = 0;
+  let isAnimating = false;
 
-      document.addEventListener('touchstart', (e) => {
-        touchStartX = e.changedTouches[0].screenX;
-      }, {passive:true});
+  function pad(n) { return String(n + 1).padStart(2, '0'); }
 
-      document.addEventListener('touchend', (e) => {
-        touchEndX = e.changedTouches[0].screenX;
-        const diff = touchStartX - touchEndX;
-        if (Math.abs(diff) > threshold) {
-          if (diff > 0) showPanel(currentIndex + 1);
-          else showPanel(currentIndex - 1);
-        }
-      }, {passive:true});
+  function goTo(idx) {
+    if (isAnimating) return;
+    idx = Math.max(0, Math.min(sections.length - 1, idx));
+    if (idx === current) return;
 
-      // Initialize aria-hidden for non-active panels
-      panels.forEach((p, i) => {
-        if (!p.classList.contains('active')) p.setAttribute('aria-hidden', 'true');
-        else p.removeAttribute('aria-hidden');
-      });
+    isAnimating = true;
+    const prev = current;
+    current = idx;
 
-      // Ensure only one panel is visible in DOM flow for screen readers
-    })();
-  </script>
-</body>
-</html>
+    // exit
+    sections[prev].classList.add('exit-up');
+    sections[prev].classList.remove('active');
+
+    // enter
+    sections[current].classList.add('active');
+    sections[current].classList.remove('exit-up');
+
+    // clean exit class after transition
+    setTimeout(() => {
+      sections[prev].classList.remove('exit-up');
+      isAnimating = false;
+    }, 460);
+
+    // nav dots
+    navBtns.forEach((b, i) => b.classList.toggle('active', i === current));
+  }
+
+  // init
+  sections[0].classList.add('active');
+  navBtns[0].classList.add('active');
+
+  /* ── SCROLL / KEYBOARD ── */
+  let lastScroll = 0;
+  window.addEventListener('wheel', (e) => {
+    const now = Date.now();
+    if (now - lastScroll < 500) return;
+    lastScroll = now;
+    goTo(e.deltaY > 0 ? current + 1 : current - 1);
+  }, { passive: true });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') goTo(current + 1);
+    if (e.key === 'ArrowUp'   || e.key === 'ArrowLeft')  goTo(current - 1);
+  });
+
+  /* ── TOUCH ── */
+  let touchY = 0;
+  window.addEventListener('touchstart', (e) => { touchY = e.touches[0].clientY; }, { passive: true });
+  window.addEventListener('touchend',   (e) => {
+    const diff = touchY - e.changedTouches[0].clientY;
+    if (Math.a
